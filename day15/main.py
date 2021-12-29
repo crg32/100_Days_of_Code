@@ -23,6 +23,7 @@ def runit():
         suitableResources = checkIngredients(drinkchoice)
         if suitableResources:
             pay(drinkchoice)
+            updateResources(drinkchoice)
     return
 
 
@@ -63,6 +64,7 @@ def checkIngredients(drink):
         return False
     else:
         print("All ingredients found. Making beverage")
+        updateResources(water, milk, coffee)
         return True
 
 
@@ -71,29 +73,29 @@ def pay(drink):
     #Ask for the # of each coin
     #Then determine monetary value based on quantity
     quqty = int(input("How many quarters?: "))
-    quvalue = quqty * Decimal(0.25)
-    print("quqty = ", quqty, "; quvalue = ", quvalue)
-    print(type(quqty), ", ", type(quvalue))
+    quvalue = quqty * 25
 
     diqty = int(input("How many dimes?: "))
-    divalue = int(diqty) * Decimal(0.1)
-    print(type(diqty), ", ", type(divalue))
+    divalue = int(diqty) * 10
 
     niqty = int(input("How many nickes?: "))
-    nivalue = int(niqty) * Decimal(0.05)
+    nivalue = int(niqty) * 5
 
     peqty = int(input("How many pennies?: "))
-    pevalue = int(peqty) * Decimal(0.01)
+    pevalue = int(peqty) * 1
 
-    cash.quantize(Decimal('.01'))) = quvalue + divalue + nivalue + pevalue
-    print(type(cash))
+    cash = quvalue + divalue + nivalue + pevalue
+    cash = cash / Decimal(100)
     change = cash - Decimal(MENU[drink]["cost"])
-    print("You paid $", cash, " for ", drink, ". Your change is $", change)
+    print("You paid $", cash, " for ", drink, ". Here is your change, $", change, ". Thank you!")
     return
+
+def updateResources(water, milk, coffee):
+    MENU.update({water: water})
+    print(MENU[water])
+#    car.update({"color": "White"})
 
 
 #print(Decimal(MENU["latte"]["cost"]))
-#pay("espresso")
+updateResources(20,0,0)
 #runit()
-
-print(Decimal(50.321).quantize(Decimal('.01')))
