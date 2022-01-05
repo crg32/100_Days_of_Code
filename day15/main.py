@@ -1,3 +1,5 @@
+import time
+
 from menu import MENU
 from decimal import Decimal, getcontext
 
@@ -14,13 +16,11 @@ def runit():
     power = True
     while power:
         drinkchoice = prompt()
-        print("drinkChoice is", drinkchoice)
         if drinkchoice.lower() == "off":
             power = False
             print("Powering Down")
             return
         suitableResources = ingAmount(drinkchoice)
-
         if suitableResources:
             pay(drinkchoice)
             updateResources(drinkchoice)
@@ -39,41 +39,41 @@ def prompt():
 
 def ingAmount(drink):
     if drink == "espresso":
-        print("Checking espresso ingredients")
+        print("You chose espresso. We are confirming there are enough espresso ingredients")
         reqWater = MENU.get("espresso").get("ingredients").get("water")
         reqCoffee = MENU.get("espresso").get("ingredients").get("coffee")
         reqMilk = 0
     elif drink == "latte":
-        print("Checking latte ingredients")
+        print("You chose latte. We are confirming there are enough latte ingredients")
         reqWater = MENU.get("latte").get("ingredients").get("water")
         reqCoffee = MENU.get("latte").get("ingredients").get("coffee")
         reqMilk = MENU.get("latte").get("ingredients").get("milk")
     elif drink == "cappuccino":
-        print("Checking cappuccino ingredients")
+        print("You chose cappuccino. We are confirming there are enough cappuccino ingredients")
         reqWater = MENU.get("cappuccino").get("ingredients").get("water")
         reqCoffee = MENU.get("cappuccino").get("ingredients").get("coffee")
         reqMilk = MENU.get("cappuccino").get("ingredients").get("milk")
     else:
         print("this is not one of the available beverages.")
         return False
+    for x in range(3):
+        print(".")
+        time.sleep(1)
     toMakeOrNotToMake = isthereenough(reqWater, reqCoffee, reqMilk)
     return toMakeOrNotToMake
 
 
 def isthereenough(wat, coff, milk):
-    water = Resources.get("water") - wat
-    coffee = Resources.get("coffee") - coff
-    milk = Resources.get("milk") - milk
-
-    if wat < Resources.get("water") or coff < Resources.get("coffee") or milk < Resources.get("milk"):
+    if Resources.get("water") < wat or Resources.get("coffee") < coff or Resources.get("milk") < milk:
         print("You do not have sufficient resources.")
         return False
     else:
+        print("There are sufficient resources to make your drink")
         return True
 
 
 def pay(drink):
-    print("Please insert coins.")
+    print("Your", drink, "costs $" + str(MENU[drink]["cost"]) + ". While your drink is being prepared, please insert coins to pay.")
     # Ask for the # of each coin
     # Then determine monetary value based on quantity
     quqty = int(input("How many quarters?: "))
@@ -82,7 +82,7 @@ def pay(drink):
     diqty = int(input("How many dimes?: "))
     divalue = int(diqty) * 10
 
-    niqty = int(input("How many nickes?: "))
+    niqty = int(input("How many nickels?: "))
     nivalue = int(niqty) * 5
 
     peqty = int(input("How many pennies?: "))
@@ -91,17 +91,17 @@ def pay(drink):
     cash = quvalue + divalue + nivalue + pevalue
     cash = cash / Decimal(100)
     change = cash - Decimal(MENU[drink]["cost"])
-    print("You paid $", cash, " for ", drink, ". Here is your change, $", change, ". Thank you!")
+    print("You gave $" + str(cash) + " for your", drink +". Here is your change, $" + str(change) + ". Thank you!")
     return
 
 
-def updateResources(usedWater, usedMilk, usedCoffee):
-    Resources["water"] -= usedWater
-    Resources["milk"] -= usedMilk
-    Resources["coffee"] -= usedCoffee
+def updateResources(drinkchoice):
+    if "milk" in MENU[drinkchoice]["ingredients"]:
+        Resources["milk"] -= MENU[drinkchoice]["ingredients"]["milk"]
+    Resources["water"] -= MENU[drinkchoice]["ingredients"]["water"]
+    Resources["coffee"] -= MENU[drinkchoice]["ingredients"]["coffee"]
     return
 
 
 # print(Decimal(MENU["latte"]["cost"]))
-ingAmount("espresso")
-# runit()
+runit()
