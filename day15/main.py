@@ -3,8 +3,7 @@ from decimal import Decimal, getcontext
 
 getcontext().rounding = 'ROUND_HALF_EVEN'
 
-
-resources = {
+Resources = {
     "water": 300,
     "milk": 200,
     "coffee": 100,
@@ -15,12 +14,13 @@ def runit():
     power = True
     while power:
         drinkchoice = prompt()
-        print("drinkChoice is",  drinkchoice)
+        print("drinkChoice is", drinkchoice)
         if drinkchoice.lower() == "off":
             power = False
             print("Powering Down")
             return
-        suitableResources = checkIngredients(drinkchoice)
+        suitableResources = ingAmount(drinkchoice)
+
         if suitableResources:
             pay(drinkchoice)
             updateResources(drinkchoice)
@@ -36,7 +36,8 @@ def prompt():
         order = input().lower()
     return order
 
-def checkIngredients(drink):
+
+def ingAmount(drink):
     if drink == "espresso":
         print("Checking espresso ingredients")
         reqWater = MENU.get("espresso").get("ingredients").get("water")
@@ -54,24 +55,27 @@ def checkIngredients(drink):
         reqMilk = MENU.get("cappuccino").get("ingredients").get("milk")
     else:
         print("this is not one of the available beverages.")
+        return False
+    toMakeOrNotToMake = isthereenough(reqWater, reqCoffee, reqMilk)
+    return toMakeOrNotToMake
 
-    water = resources.get("water") - reqWater
-    coffee = resources.get("coffee") - reqCoffee
-    milk = resources.get("coffee") - reqMilk
 
-    if water < 0 or coffee < 0 or milk < 0:
+def isthereenough(wat, coff, milk):
+    water = Resources.get("water") - wat
+    coffee = Resources.get("coffee") - coff
+    milk = Resources.get("milk") - milk
+
+    if wat < Resources.get("water") or coff < Resources.get("coffee") or milk < Resources.get("milk"):
         print("You do not have sufficient resources.")
         return False
     else:
-        print("All ingredients found. Making beverage")
-        updateResources(water, milk, coffee)
         return True
 
 
 def pay(drink):
     print("Please insert coins.")
-    #Ask for the # of each coin
-    #Then determine monetary value based on quantity
+    # Ask for the # of each coin
+    # Then determine monetary value based on quantity
     quqty = int(input("How many quarters?: "))
     quvalue = quqty * 25
 
@@ -90,12 +94,14 @@ def pay(drink):
     print("You paid $", cash, " for ", drink, ". Here is your change, $", change, ". Thank you!")
     return
 
-def updateResources(water, milk, coffee):
-    MENU.update({water: water})
-    print(MENU[water])
-#    car.update({"color": "White"})
+
+def updateResources(usedWater, usedMilk, usedCoffee):
+    Resources["water"] -= usedWater
+    Resources["milk"] -= usedMilk
+    Resources["coffee"] -= usedCoffee
+    return
 
 
-#print(Decimal(MENU["latte"]["cost"]))
-updateResources(20,0,0)
-#runit()
+# print(Decimal(MENU["latte"]["cost"]))
+ingAmount("espresso")
+# runit()
