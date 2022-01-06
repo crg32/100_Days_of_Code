@@ -1,5 +1,5 @@
 import time
-
+import sys
 from menu import MENU
 from decimal import Decimal, getcontext
 
@@ -11,6 +11,10 @@ Resources = {
     "coffee": 100,
 }
 
+Bank = {
+    "Money": 0
+}
+
 
 def runit():
     power = True
@@ -20,20 +24,22 @@ def runit():
             power = False
             print("Powering Down")
             return
+        elif drinkchoice == "report":
+            drinkchoice = prompt()
         suitableResources = ingAmount(drinkchoice)
         if suitableResources:
             pay(drinkchoice)
-            updateResources(drinkchoice)
+            update_resources(drinkchoice)
     return
 
 
 def prompt():
     print("What would you like? (espresso/latte/cappuccino):")
-    order = input().lower()
-    while order not in ["espresso", "cappuccino", "latte", "off"]:
+    order = check_quit(input().lower())
+    while order not in ["espresso", "cappuccino", "latte", "off", "report"]:
         print(order, "is not available. Please go home or tell us what you want for real")
         print("What would you like? (espresso/latte/cappuccino):")
-        order = input().lower()
+        order = check_quit(input().lower())
     return order
 
 
@@ -56,7 +62,7 @@ def ingAmount(drink):
     else:
         print("this is not one of the available beverages.")
         return False
-    for x in range(3):
+    for x in range(2):
         print(".")
         time.sleep(1)
     toMakeOrNotToMake = isthereenough(reqWater, reqCoffee, reqMilk)
@@ -76,31 +82,40 @@ def pay(drink):
     print("Your", drink, "costs $" + str(MENU[drink]["cost"]) + ". While your drink is being prepared, please insert coins to pay.")
     # Ask for the # of each coin
     # Then determine monetary value based on quantity
-    quqty = int(input("How many quarters?: "))
+    quqty = int(check_quit(input("How many quarters?: ")))
     quvalue = quqty * 25
 
-    diqty = int(input("How many dimes?: "))
+    diqty = int(check_quit(input("How many dimes?: ")))
     divalue = int(diqty) * 10
 
-    niqty = int(input("How many nickels?: "))
+    niqty = int(check_quit(input("How many nickels?: ")))
     nivalue = int(niqty) * 5
 
-    peqty = int(input("How many pennies?: "))
+    peqty = int(check_quit(input("How many pennies?: ")))
     pevalue = int(peqty) * 1
 
     cash = quvalue + divalue + nivalue + pevalue
     cash = cash / Decimal(100)
     change = cash - Decimal(MENU[drink]["cost"])
+    Bank["Money"] += MENU[drink]["cost"]
     print("You gave $" + str(cash) + " for your", drink +". Here is your change, $" + str(change) + ". Thank you!")
     return
 
 
-def updateResources(drinkchoice):
+def update_resources(drinkchoice):
     if "milk" in MENU[drinkchoice]["ingredients"]:
         Resources["milk"] -= MENU[drinkchoice]["ingredients"]["milk"]
     Resources["water"] -= MENU[drinkchoice]["ingredients"]["water"]
     Resources["coffee"] -= MENU[drinkchoice]["ingredients"]["coffee"]
     return
+
+def check_quit(inp):
+    if inp.lower() == 'off':
+        sys.exit(0)
+    elif inp.lower() == 'report':
+        print(Resources)
+        print(Bank)
+    return inp
 
 
 # print(Decimal(MENU["latte"]["cost"]))
